@@ -1,0 +1,42 @@
+
+name: Build StakeHelper Demo APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'StakeHelper_Demo_Integer_Source.zip'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract source ZIP
+        run: |
+          mkdir -p source
+          unzip -o StakeHelper_Demo_Integer_Source.zip -d source
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build demo APK
+        run: |
+          cd source
+          gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: StakeHelper-Demo-APK
+          path: source/app/build/outputs/apk/debug/*.apk
